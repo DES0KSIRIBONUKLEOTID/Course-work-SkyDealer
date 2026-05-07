@@ -1,0 +1,267 @@
+export const planes = [
+  {
+    id: 1,
+    title: "Gulfstream G650",
+    price: 65000000,
+    image: "https://images.unsplash.com/photo-1540962351504-03099e0a754b?auto=format&fit=crop&w=600&q=80",
+    description: "Флагман бізнес-авіації. Найшвидший і найкомфортніший джет у своєму класі.",
+    category: "Бізнес-джет",
+    year: 2022,
+    manufacturer: "Gulfstream",
+    specs: { speed: "956 км/год", range: "12 964 км", altitude: "15 545 м", passengers: "до 19", engines: "2 × Rolls-Royce BR725", cargo: "5.52 м³" }
+  },
+  {
+    id: 2,
+    title: "Cessna 172 Skyhawk",
+    price: 450000,
+    image: "/Cessna_172.jpg",
+    description: "Ідеальний варіант для навчання та приватних польотів. Надійний та економічний.",
+    category: "Легка авіація",
+    year: 2018,
+    manufacturer: "Cessna",
+    specs: { speed: "226 км/год", range: "1 185 км", altitude: "4 267 м", passengers: "до 4", engines: "1 × Lycoming IO-360", cargo: "0.85 м³" }
+  },
+  {
+    id: 3,
+    title: "Bombardier Global 7500",
+    price: 73000000,
+    image: "/Bombardier.jpg",
+    description: "Бізнес-джет з найбільшою дальністю польоту. Поєднує розкіш та технології.",
+    category: "Бізнес-джет",
+    year: 2023,
+    manufacturer: "Bombardier",
+    specs: { speed: "982 км/год", range: "14 260 км", altitude: "15 545 м", passengers: "до 19", engines: "2 × GE Passport", cargo: "5.52 м³" }
+  },
+  {
+    id: 4,
+    title: "HondaJet Elite",
+    price: 5200000,
+    image: "https://images.unsplash.com/photo-1569629743817-70d8db6c323b?auto=format&fit=crop&w=600&q=80",
+    description: "Інноваційний легкий джет з унікальним розташуванням двигунів над крилом.",
+    category: "Легкий джет",
+    year: 2021,
+    manufacturer: "Honda Aircraft",
+    specs: { speed: "782 км/год", range: "2 661 км", altitude: "13 106 м", passengers: "до 7", engines: "2 × GE Honda HF120", cargo: "1.86 м³" }
+  },
+  {
+    id: 5,
+    title: "Boeing 747-8F",
+    price: 419000000,
+    image: "/Boeing747.jpg", 
+    description: "«Королева небес» у вантажному варіанті. Легендарний чотиридвигунний літак з характерним «горбом». Унікальний тим, що має ніс, який відкидається вгору, що дозволяє завантажувати дуже довгі та негабаритні вантажі прямо спереду.\n\nВикористання: Перевезення найважчих та найбільших вантажів на найбільші відстані. Основний літак таких гігантів, як Atlas Air, Cargolux, UPS.",
+    category: "Вантажний",
+    year: 2021,
+    manufacturer: "Boeing",
+    specs: { speed: "908 км/год", range: "8 130 км (з повним вантажем)", altitude: "13 100 м", passengers: "0 (Вантажний)", engines: "4 × GEnx-2B67", cargo: "137 тонн" }
+  },
+  {
+    id: 6,
+    title: "Boeing 777F",
+    price: 352000000,
+    image: "/Boeing777.jpg", 
+    description: "Найпоширеніший сучасний важкий двомоторний вантажівник. Базується на пасажирській версії 777-200LR. Дуже економічний і має велику дальність польоту.\n\nВикористання: Основний «робочий кінь» глобальної логістики (FedEx, DHL, Qatar Airways Cargo). Возить все: від посилок e-commerce до автомобілів і скакових коней.",
+    category: "Вантажний",
+    year: 2022,
+    manufacturer: "Boeing",
+    specs: { speed: "896 км/год", range: "9 200 км", altitude: "13 140 м", passengers: "0 (Вантажний)", engines: "2 × GE90-110B1", cargo: "102 тонни" }
+  },
+  {
+    id: 7,
+    title: "Антонов Ан-124-100 «Руслан»",
+    price: 150000000,
+    image: "/Antonov_An-124.jpg", 
+    description: "Український важкий транспортний літак, один із найбільших серійних літаків у світі. Має унікальну конструкцію: завантаження можливе як через ніс (який піднімається, літак «присідає»), так і через задню рампу. Це дозволяє перевозити наскрізні вантажі.\n\nВикористання: Спеціалізовані перевезення надважких та великогабаритних вантажів, які не влазять у стандартні «Боїнги»: турбіни електростанцій, потяги метро, супутники, військова техніка. Експлуатується українською авіакомпанією «Авіалінії Антонова».",
+    category: "Вантажний",
+    year: 2004,
+    manufacturer: "Antonov",
+    specs: { speed: "865 км/год", range: "4 800 км (з вантажем 120т)", altitude: "11 600 м", passengers: "до 88 (в окремій кабіні)", engines: "4 × Д-18Т", cargo: "1040 м³ / 120 тонн" }
+  },
+  {
+    id: 8,
+    title: "Airbus A330-200F",
+    price: 241000000,
+    image: "/Airbus_A330.jpg", 
+    description: "Конкурент Boeing у сегменті середніх/важких вантажівників. Його легко впізнати за характерною «гулею» під носом, куди ховається передня стійка шасі, щоб вирівняти підлогу вантажної палуби.\n\nВикористання: Популярний серед експрес-перевізників та для регіональних вантажних маршрутів в Азії та Європі.",
+    category: "Вантажний",
+    year: 2019,
+    manufacturer: "Airbus",
+    specs: { speed: "871 км/год", range: "7 400 км", altitude: "12 500 м", passengers: "0 (Вантажний)", engines: "2 × Rolls-Royce Trent 700", cargo: "70 тонн" }
+  },
+  {
+    id: 9,
+    title: "Cirrus SR22T",
+    price: 1250000,
+    image: "/Cirrus_SR-22.jpg",
+    description: "Найпопулярніший у світі високотехнологічний одномоторний літак. Ідеальний для особистих подорожей та бізнесу.\n\nУнікальна особливість: Оснащений системою CAPS (Cirrus Airframe Parachute System) — повноцінним парашутом для всього літака, що робить його одним із найбезпечніших у своєму класі.",
+    category: "Легка авіація",
+    year: 2023,
+    manufacturer: "Cirrus Aircraft",
+    specs: { speed: "394 км/год", range: "1 943 км", altitude: "7 620 м", passengers: "до 5", engines: "1 × Continental TSIO-550-K", cargo: "0.9 м³" }
+  },
+  {
+    id: 10,
+    title: "Pilatus PC-12 NGX",
+    price: 5500000,
+    image: "/Pilatus.jpg",
+    description: "Швейцарський одномоторний турбогвинтовий літак. Універсальний «позашляховик» преміум-класу.\n\nОсобливості: Здатен приземлятися на короткі, ґрунтові та трав'яні смуги, куди реактивним джетам шлях закрито. При цьому пропонує простору кабіну від BMW Designworks, що не поступається середнім бізнес-джетам.",
+    category: "Турбогвинтовий",
+    year: 2022,
+    manufacturer: "Pilatus",
+    specs: { speed: "537 км/год", range: "3 426 км", altitude: "9 144 м", passengers: "до 10", engines: "1 × Pratt & Whitney PT6E-67XP", cargo: "1.13 м³" }
+  },
+  {
+    id: 11,
+    title: "Dassault Falcon 8X",
+    price: 59500000,
+    image: "/Dassault_Falcon_7X.jpg",
+    description: "Ультра-далекомагістральний французький бізнес-джет з характерною тримоторною конструкцією (S-duct).\n\nПереваги: Три двигуни не лише надають йому агресивного вигляду, але й дозволяють прокладати прямі маршрути над океанами та горами без суворих обмежень, які діють для двомоторних літаків. Найнижчий рівень шуму в кабіні серед конкурентів.",
+    category: "Бізнес-джет",
+    year: 2021,
+    manufacturer: "Dassault Aviation",
+    specs: { speed: "900 км/год", range: "11 945 км", altitude: "15 545 м", passengers: "до 16", engines: "3 × Pratt & Whitney PW307D", cargo: "3.7 м³" }
+  },
+  {
+    id: 12,
+    title: "Boeing 787-9 Dreamliner (BBJ)",
+    price: 292500000,
+    image: "/Boeing_787.jpg",
+    description: "Широкофюзеляжний пасажирський авіалайнер нового покоління, який також доступний у VIP-конфігурації (Boeing Business Jet) для глав держав та мільярдерів.\n\nТехнології: Фюзеляж виготовлений з композитних матеріалів, що дозволило зробити найбільші ілюмінатори в класі та підтримувати більш комфортний тиск і вологість у салоні. Справжній летючий палац.",
+    category: "Пасажирський",
+    year: 2024,
+    manufacturer: "Boeing",
+    specs: { speed: "903 км/год", range: "17 500 км (BBJ версія)", altitude: "13 100 м", passengers: "до 40 (VIP конфігурація)", engines: "2 × GEnx-1B або Trent 1000", cargo: "153 м³" }
+  },
+  // --- ДРУГА СТОРІНКА (Для Пагінації) ---
+  {
+    id: 13,
+    title: "Антонов Ан-225 «Мрія»",
+    price: 300000000,
+    image: "/Antonov_An-225_Mria.jpg",
+    description: "Найбільший та найпотужніший транспортний літак у світі. Створений в єдиному екземплярі. Справжня гордість української авіації та абсолютний ексклюзив для приватних колекціонерів або масштабних державних місій.",
+    category: "Вантажний",
+    year: 1988,
+    manufacturer: "Antonov",
+    specs: { speed: "850 км/год", range: "15 400 км", altitude: "11 000 м", passengers: "до 70 (в кабіні супроводу)", engines: "6 × Д-18Т", cargo: "250 тонн / 1300 м³" }
+  },
+  {
+    id: 14,
+    title: "Embraer Phenom 300E",
+    price: 10950000,
+    image: "/Embraer_EMB-505_Phenom_300.jpg",
+    description: "Найпопулярніший легкий бізнес-джет у світі останнє десятиліття. Пропонує неперевершену швидкість, економічність та комфорт у своєму класі. Ідеальний для швидких перельотів Європою.",
+    category: "Легкий джет",
+    year: 2023,
+    manufacturer: "Embraer",
+    specs: { speed: "859 км/год", range: "3 723 км", altitude: "13 716 м", passengers: "до 10", engines: "2 × Pratt & Whitney PW535E1", cargo: "2.4 м³" }
+  },
+  {
+    id: 15,
+    title: "Aérospatiale-BAC Concorde",
+    price: 150000000,
+    image: "/Concorde.jpg",
+    description: "Легендарний надзвуковий пасажирський авіалайнер. Доступний як колекційний екземпляр. Літав вдвічі швидше за звук, дозволяючи дістатися з Лондона до Нью-Йорка за 3.5 години.",
+    category: "Пасажирський",
+    year: 1976,
+    manufacturer: "Aérospatiale/BAC",
+    specs: { speed: "2 179 км/год (Мах 2.04)", range: "7 222 км", altitude: "18 300 м", passengers: "до 100", engines: "4 × Rolls-Royce/Snecma Olympus 593", cargo: "6.4 м³" }
+  },
+  {
+    id: 16,
+    title: "ICON A5",
+    price: 389000,
+    image: "/Icon_A5.jpg",
+    description: "Легкий спортивний літак-амфібія зі складаними крилами. Його можна зберігати в гаражі і перевозити на причепі. Приземляється як на асфальт, так і на озера. Ідеальна іграшка для вікенду.",
+    category: "Легка авіація",
+    year: 2022,
+    manufacturer: "ICON Aircraft",
+    specs: { speed: "176 км/год", range: "791 км", altitude: "3 048 м", passengers: "2", engines: "1 × Rotax 912 iS", cargo: "0.2 м³" }
+  },
+  {
+    id: 17,
+    title: "Beechcraft King Air 360",
+    price: 8400000,
+    image: "/Tc-90.jpg",
+    description: "Найпопулярніший у світі двомоторний турбогвинтовий літак. Славиться своєю надійністю, просторим салоном та здатністю злітати з коротких і ґрунтових смуг.",
+    category: "Турбогвинтовий",
+    year: 2023,
+    manufacturer: "Beechcraft",
+    specs: { speed: "578 км/год", range: "3 345 км", altitude: "10 668 м", passengers: "до 11", engines: "2 × Pratt & Whitney PT6A-60A", cargo: "2.0 м³" }
+  },
+  {
+    id: 18,
+    title: "Airbus A350-1000",
+    price: 366500000,
+    image: "/A350.jpg",
+    description: "Надсучасний широкофюзеляжний лайнер з композитних матеріалів. Найбільший у сімействі A350. Забезпечує неперевершений комфорт, тишу в салоні та неймовірну паливну ефективність.",
+    category: "Пасажирський",
+    year: 2024,
+    manufacturer: "Airbus",
+    specs: { speed: "903 км/год", range: "16 100 км", altitude: "13 100 м", passengers: "до 410", engines: "2 × Rolls-Royce Trent XWB-97", cargo: "208 м³" }
+  },
+  {
+    id: 19,
+    title: "Diamond DA62",
+    price: 1450000,
+    image: "/Diamond62.jpg",
+    description: "Розкішний 7-місний легкий двомоторний літак. Його часто називають «літаючим позашляховиком». Має футуристичний дизайн і надзвичайно економні дизельні двигуни.",
+    category: "Легка авіація",
+    year: 2023,
+    manufacturer: "Diamond Aircraft",
+    specs: { speed: "356 км/год", range: "2 380 км", altitude: "6 096 м", passengers: "до 7", engines: "2 × Austro Engine AE330", cargo: "1.2 м³" }
+  },
+  {
+    id: 20,
+    title: "Gulfstream G700",
+    price: 78000000,
+    image: "/Qatar.jpg",
+    description: "Новий абсолютний флагман приватної авіації. Має найбільший, найширший і найдовший салон у галузі. Дозволяє летіти майже зі швидкістю звуку між континентами.",
+    category: "Бізнес-джет",
+    year: 2024,
+    manufacturer: "Gulfstream",
+    specs: { speed: "982 км/год", range: "14 353 км", altitude: "15 545 м", passengers: "до 19", engines: "2 × Rolls-Royce Pearl 700", cargo: "5.52 м³" }
+  },
+  {
+    id: 21,
+    title: "Cessna Citation Longitude",
+    price: 29995000,
+    image: "/Cessna_long.jpg",
+    description: "Супер-середній бізнес-джет. Пропонує найтихіший салон у своєму класі та відмінну дальність польоту для трансатлантичних подорожей з найвищим рівнем комфорту.",
+    category: "Бізнес-джет",
+    year: 2022,
+    manufacturer: "Cessna",
+    specs: { speed: "895 км/год", range: "6 482 км", altitude: "13 716 м", passengers: "до 12", engines: "2 × Honeywell HTF7700L", cargo: "3.17 м³" }
+  },
+  {
+    id: 22,
+    title: "Boeing BBJ MAX 8",
+    price: 110000000,
+    image: "/BBJ_MAX_8.jpg",
+    description: "Корпоративна VIP-версія популярного лайнера 737 MAX. Дає власникам простір комерційного літака з розкішшю п'ятизіркового готелю, включаючи спальні та душові кабіни.",
+    category: "Пасажирський",
+    year: 2023,
+    manufacturer: "Boeing",
+    specs: { speed: "840 км/год", range: "12 297 км", altitude: "12 500 м", passengers: "до 19 (VIP)", engines: "2 × CFM LEAP-1B", cargo: "27.3 м³" }
+  },
+  {
+    id: 23,
+    title: "Cessna 208B Grand Caravan EX",
+    price: 2685000,
+    image: "/Cessna_208_Caravan.jpg",
+    description: "Надійний і витривалий утилітарний турбогвинтовий літак. Відомий як «крилатий пікап». Використовується для пасажирських, вантажних перевезень та гуманітарних місій у найважчих умовах.",
+    category: "Турбогвинтовий",
+    year: 2022,
+    manufacturer: "Cessna",
+    specs: { speed: "343 км/год", range: "1 689 км", altitude: "7 620 м", passengers: "до 14", engines: "1 × Pratt & Whitney PT6A-140", cargo: "3.1 м³" }
+  },
+  {
+    id: 24,
+    title: "Airbus BelugaXL",
+    price: 330000000,
+    image: "/BelugaXL.jpg",
+    description: "Один з найбільш незвичайних літаків у світі, створений у формі кита-білухи. Спеціалізований вантажівник для транспортування величезних частин інших літаків (наприклад, крил A350).",
+    category: "Вантажний",
+    year: 2020,
+    manufacturer: "Airbus",
+    specs: { speed: "737 км/год", range: "4 000 км", altitude: "10 668 м", passengers: "0 (Вантажний)", engines: "2 × Rolls-Royce Trent 700", cargo: "51 тонна / 2209 м³" }
+  }
+];
