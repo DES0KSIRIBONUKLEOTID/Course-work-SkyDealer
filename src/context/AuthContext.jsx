@@ -51,14 +51,16 @@ export const AuthProvider = ({ children }) => {
       
       const data = await response.json();
       
-      if (response.ok) { // Статус 200
+      if (response.status === 206) { 
+        return { success: false, requires2FA: true, message: data.message };
+      } 
+      else if (response.ok) { 
         setUser(data.user); 
         setFavorites(data.user.favorites || []);
         localStorage.setItem('token', data.token); 
         return { success: true };
-      } else if (response.status === 206) { 
-        return { success: false, requires2FA: true, message: data.message };
-      } else {
+      } 
+      else {
         return { success: false, error: data.error || 'Невірні дані' }; 
       }
     } catch (error) {
