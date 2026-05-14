@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Відновлення сесії з бекенду при оновленні сторінки 
+  // Відновлення сесії
   useEffect(() => {
     const fetchSession = async () => {
       const token = localStorage.getItem('token');
@@ -51,21 +51,18 @@ export const AuthProvider = ({ children }) => {
       
       const data = await response.json();
       
-      if (response.ok) { 
+      if (response.ok) { // Статус 200
         setUser(data.user); 
         setFavorites(data.user.favorites || []);
         localStorage.setItem('token', data.token); 
         return { success: true };
-      } 
-
-      else if (response.status === 206) {
+      } else if (response.status === 206) { 
         return { success: false, requires2FA: true, message: data.message };
-      } 
-      else {
-        return { success: false, error: data.error || 'Помилка входу' }; 
+      } else {
+        return { success: false, error: data.error || 'Невірні дані' }; 
       }
     } catch (error) {
-      console.error("Login fetch error:", error);
+      console.error("Помилка логіну:", error);
       return { success: false, error: "Помилка підключення до сервера" };
     }
   };
@@ -76,7 +73,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token'); 
   };
 
-  // функція для відправки змін у MongoDB
+  // Синхронізація з сервером
   const syncProfileWithServer = async (updatedData) => {
     if (!user) return;
     const token = localStorage.getItem('token');
@@ -94,16 +91,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Оновлення профілю (ПФП)
+  // Оновлення аватара
   const updateUserProfile = (newAvatarUrl) => {
     if (user) {
       setUser({ ...user, avatar: newAvatarUrl });
-      // Відправляємо новий аватар в БД
       syncProfileWithServer({ avatar: newAvatarUrl }); 
     }
   };
 
-  // Оновлення обраного
+  const updateUserState = (newData) => {
+    if (user) {
+      setUser({ ...user, ...newData });
+    }
+  };
+
   const toggleFavorite = (planeId) => {
     if (!user) {
       alert("Будь ласка, увійдіть в систему, щоб додавати в обране!");
@@ -121,12 +122,10 @@ export const AuthProvider = ({ children }) => {
     syncProfileWithServer({ favorites: newFavorites }); 
   };
 
-  if (loading) {
-    return null; 
-  }
+  if (loading) return null; 
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, favorites, toggleFavorite, updateUserProfile }}>
+    <AuthContext.Provider value={{ user, login, logout, favorites, toggleFavorite, updateUserProfile, updateUserState }}>
       {children}
     </AuthContext.Provider>
   );
