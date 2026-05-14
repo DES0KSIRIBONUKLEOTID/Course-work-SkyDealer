@@ -22,7 +22,7 @@ export default function Profile() {
   
   const [tabValue, setTabValue] = useState(0);
   const [myComments, setMyComments] = useState([]);
-  const [isUploading, setIsUploading] = useState(false); // Стан для завантаження фото
+  const [isUploading, setIsUploading] = useState(false); 
 
   useEffect(() => {
     if (user) {
@@ -81,27 +81,29 @@ export default function Profile() {
   const handle2FAToggle = async () => {
     try {
       const token = localStorage.getItem('token');
+      // ПЕРЕВІР, ЩО ТУТ САМЕ ТВІЙ RENDER URL
       const res = await fetch('https://skydealer-backend.onrender.com/api/auth/2fa/toggle', {
         method: 'POST',
         headers: { 
-          'Authorization': `Bearer ${token}` 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json' // Додав Content-Type про всяк випадок
         }
       });
       
-      if (res.ok) {
+     if (res.ok) {
         const data = await res.json();
         if (updateUserState) {
            updateUserState({ isTwoFactorEnabled: data.isTwoFactorEnabled });
         } else {
-           
            window.location.reload(); 
         }
       } else {
-        alert("Помилка зміни статусу 2FA");
+        const errorData = await res.json();
+        alert(`Помилка: ${errorData.error || 'Невідома помилка сервера'}`);
       }
     } catch (error) {
-      console.error(error);
-      alert("Помилка з'єднання з сервером");
+      console.error("Fetch error:", error);
+      alert("Помилка з'єднання з сервером (перевір Network)");
     }
   };
 

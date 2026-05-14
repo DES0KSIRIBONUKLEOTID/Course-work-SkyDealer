@@ -38,25 +38,34 @@ export const AuthProvider = ({ children }) => {
     fetchSession();
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email, password, code = null) => {
     try {
+      const bodyData = { email, password };
+      if (code) bodyData.code = code;
+
       const response = await fetch('https://skydealer-backend.onrender.com/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify(bodyData)
       });
       
       const data = await response.json();
       
-      if (response.ok) {
+      if (response.ok) { 
         setUser(data.user); 
-        setFavorites(data.user.favorites || []); // Беремо обране з бази
+        setFavorites(data.user.favorites || []);
         localStorage.setItem('token', data.token); 
         return { success: true };
-      } else {
-        return { success: false, error: data.error }; 
+      } 
+
+      else if (response.status === 206) {
+        return { success: false, requires2FA: true, message: data.message };
+      } 
+      else {
+        return { success: false, error: data.error || 'Помилка входу' }; 
       }
     } catch (error) {
+      console.error("Login fetch error:", error);
       return { success: false, error: "Помилка підключення до сервера" };
     }
   };

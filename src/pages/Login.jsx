@@ -6,7 +6,10 @@ import { useAuth } from '../context/AuthContext';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [code, setCode] = useState(''); 
+  const [needs2FA, setNeeds2FA] = useState(false); 
   const [error, setError] = useState('');
+  
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -14,12 +17,16 @@ export default function Login() {
     e.preventDefault();
     setError('');
     
-    const result = await login(email, password);
+    const result = await login(email, password, needs2FA ? code : null);
     
     if (result.success) {
-      navigate('/'); // Успішно увійшли - перекидаємо на головну сторінку
+      navigate('/');
+    } else if (result.requires2FA) {
+      
+      setNeeds2FA(true);
+      setError(''); 
     } else {
-      setError(result.error); // Показує помилку від сервера
+      setError(result.error);
     }
   };
 
@@ -31,33 +38,37 @@ export default function Login() {
         </Typography>
         
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {needs2FA && <Alert severity="info" sx={{ mb: 2 }}>Введіть код двофакторної автентифікації</Alert>}
         
         <Box component="form" onSubmit={handleSubmit}>
           <TextField 
             label="Email" 
-            fullWidth 
-            required 
-            margin="normal"
+            fullWidth required margin="normal"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={needs2FA} 
           />
           <TextField 
             label="Пароль" 
             type="password" 
-            fullWidth 
-            required 
-            margin="normal"
+            fullWidth required margin="normal"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={needs2FA} // Блокуємо зміну пароля
           />
-          <Button 
-            type="submit" 
-            variant="contained" 
-            fullWidth 
-            size="large" 
-            sx={{ mt: 3, mb: 2, borderRadius: 2 }}
-          >
-            Увійти
+          
+          {needs2FA && (
+            <TextField 
+              label="Код 2FA" 
+              fullWidth required margin="normal"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              autoFocus
+            />
+          )}
+
+          <Button type="submit" variant="contained" fullWidth size="large" sx={{ mt: 3, mb: 2, borderRadius: 2 }}>
+            {needs2FA ? 'Підтвердити код' : 'Увійти'}
           </Button>
         </Box>
         <Typography textAlign="center" variant="body2" color="text.secondary">
