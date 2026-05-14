@@ -3,30 +3,40 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  // Завантажує юзера з пам'яті браузера
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('currentUser');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+  const [user, setUser] = useState(null);
+  const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Список ID обраних літаків
-  const [favorites, setFavorites] = useState(() => {
-    const savedFavs = localStorage.getItem('userFavorites');
-    return savedFavs ? JSON.parse(savedFavs) : [];
-  });
-
-  // Зберігаємо юзера при змінах
+  // Відновлення сесії з бекенду при оновленні сторінки 
   useEffect(() => {
-    if (user) {
-      localStorage.setItem('currentUser', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('currentUser');
-    }
-  }, [user]);
+    const fetchSession = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
 
-  useEffect(() => {
-    localStorage.setItem('userFavorites', JSON.stringify(favorites));
-  }, [favorites]);
+      try {
+        const response = await fetch('https://skydealer-backend.onrender.com/api/auth/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data);
+          setFavorites(data.favorites || []);
+        } else {
+          localStorage.removeItem('token');
+        }
+      } catch (error) {
+        console.error("Помилка відновлення сесії:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSession();
+  }, []);
 
   const login = async (email, password) => {
     try {
@@ -40,6 +50,7 @@ export const AuthProvider = ({ children }) => {
       
       if (response.ok) {
         setUser(data.user); 
+        setFavorites(data.user.favorites || []); // Беремо обране з бази
         localStorage.setItem('token', data.token); 
         return { success: true };
       } else {
@@ -56,24 +67,54 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token'); 
   };
 
-  // Оновлення профілю 
-  const updateUserProfile = (newAvatarUrl) => {
-    if (user) {
-      setUser({ ...user, avatar: newAvatarUrl });
+  // функція для відправки змін у MongoDB
+  const syncProfileWithServer = async (updatedData) => {
+    if (!user) return;
+    const token = localStorage.getItem('token');
+    try {
+      await fetch(`https://skydealer-backend.onrender.com/api/users/profile/${user.id}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(updatedData)
+      });
+    } catch (error) {
+      console.error("Помилка збереження на сервері", error);
     }
   };
 
+  // Оновлення профілю (ПФП)
+  const updateUserProfile = (newAvatarUrl) => {
+    if (user) {
+      setUser({ ...user, avatar: newAvatarUrl });
+      // Відправляємо новий аватар в БД
+      syncProfileWithServer({ avatar: newAvatarUrl }); 
+    }
+  };
+
+  // Оновлення обраного
   const toggleFavorite = (planeId) => {
     if (!user) {
       alert("Будь ласка, увійдіть в систему, щоб додавати в обране!");
       return;
     }
+
+    let newFavorites;
     if (favorites.includes(planeId)) {
-      setFavorites(favorites.filter(id => id !== planeId));
+      newFavorites = favorites.filter(id => id !== planeId);
     } else {
-      setFavorites([...favorites, planeId]);
+      newFavorites = [...favorites, planeId];
     }
+
+    setFavorites(newFavorites);
+    syncProfileWithServer({ favorites: newFavorites }); 
   };
+
+  if (loading) {
+    return null; 
+  }
 
   return (
     <AuthContext.Provider value={{ user, login, logout, favorites, toggleFavorite, updateUserProfile }}>
