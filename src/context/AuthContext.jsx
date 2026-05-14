@@ -3,7 +3,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  // Завантажуємо юзера з пам'яті браузера
+  // Завантажує юзера з пам'яті браузера
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem('currentUser');
     return savedUser ? JSON.parse(savedUser) : null;
@@ -28,19 +28,37 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('userFavorites', JSON.stringify(favorites));
   }, [favorites]);
 
-  const login = (userData) => {
-    setUser(userData);
+  const login = async (email, password) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setUser(data.user); 
+        localStorage.setItem('token', data.token); 
+        return { success: true };
+      } else {
+        return { success: false, error: data.error }; 
+      }
+    } catch (error) {
+      return { success: false, error: "Помилка підключення до сервера" };
+    }
   };
 
   const logout = () => {
     setUser(null);
     setFavorites([]);
+    localStorage.removeItem('token'); 
   };
 
   // Оновлення профілю 
   const updateUserProfile = (newAvatarUrl) => {
     if (user) {
-
       setUser({ ...user, avatar: newAvatarUrl });
     }
   };
@@ -58,7 +76,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-
     <AuthContext.Provider value={{ user, login, logout, favorites, toggleFavorite, updateUserProfile }}>
       {children}
     </AuthContext.Provider>

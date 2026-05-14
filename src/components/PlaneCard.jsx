@@ -7,7 +7,8 @@ import { useAuth } from '../context/AuthContext';
 
 export default function PlaneCard({ plane }) {
   const { favorites, toggleFavorite } = useAuth();
-  const isFavorite = favorites.includes(plane.id);
+  
+  const isFavorite = favorites.includes(plane._id);
 
   return (
    <Card sx={{ 
@@ -24,11 +25,10 @@ export default function PlaneCard({ plane }) {
       <CardMedia
         component="img"
         height="220"
-        image={plane.image || "https://via.placeholder.com/400x240"}
+        image={plane.images?.[0] || "https://images.unsplash.com/photo-1540962351504-03099e0a754b?auto=format&fit=crop&w=400&q=80"}
         alt={plane.title}
       />
       
-      {/* Робимо CardContent гнучким контейнером */}
       <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', p: 3 }}>
         <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 'bold', letterSpacing: 1 }}>
           {plane.category || "Авіація"} • {plane.year || "N/A"}
@@ -53,9 +53,8 @@ export default function PlaneCard({ plane }) {
           {plane.description}
         </Typography>
 
-        {/* mt: 'auto' притискає ціну до самого низу CardContent */}
         <Typography variant="h6" color="secondary" sx={{ fontWeight: 'bold', mt: 'auto' }}>
-          ${plane.price.toLocaleString()}
+          ${plane.price ? plane.price.toLocaleString() : "0"}
         </Typography>
       </CardContent>
 
@@ -64,7 +63,8 @@ export default function PlaneCard({ plane }) {
           size="small" 
           variant="contained" 
           component={Link} 
-          to={`/plane/${plane.id}`}
+         
+          to={`/plane/${plane._id}`}
           sx={{ borderRadius: 2, px: 3 }}
         >
           Детальніше
@@ -74,7 +74,8 @@ export default function PlaneCard({ plane }) {
           size="small" 
           color={isFavorite ? "error" : "primary"}
           startIcon={isFavorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-          onClick={() => toggleFavorite(plane.id)}
+          
+          onClick={() => toggleFavorite(plane._id)}
           sx={{ borderRadius: 2 }}
         >
           {isFavorite ? "В обраному" : "В обране"}

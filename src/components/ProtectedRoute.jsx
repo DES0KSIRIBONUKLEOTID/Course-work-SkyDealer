@@ -12,7 +12,7 @@ export default function ProtectedRoute({ children, requireAdmin = false }) {
 
   // 2. Якщо сторінка тільки для Адміна, а зайшов звичайний юзер -> відправляємо на Головну
   if (requireAdmin && user.role !== 'ADMIN') {
-    return <Navigate to="/" replace />; // Можна також зробити сторінку "Доступ заборонено"
+    return <Navigate to="/" replace />; 
   }
   
   return children;

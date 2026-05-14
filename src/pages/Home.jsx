@@ -192,7 +192,7 @@ export default function Home() {
           <>
             <Grid container spacing={4} justifyContent="center">
               {currentPlanes.map((plane) => (
-                <Grid item key={plane.id} xs={12} sm={6} md={4} lg={3}>
+                <Grid item key={plane._id} xs={12} sm={6} md={4} lg={3}>
                   <PlaneCard plane={plane} />
                 </Grid>
               ))}

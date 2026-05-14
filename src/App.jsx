@@ -3,11 +3,11 @@ import { Routes, Route, BrowserRouter, Link, useLocation } from 'react-router-do
 import { AppBar, Toolbar, Typography, Button, Box, Avatar } from '@mui/material';
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import { AnimatePresence, motion } from 'framer-motion'; 
-// Імпорти для Теми
+
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
-// Наші сторінки, компоненти та контексти
+
 import Home from './pages/Home';
 import PlaneDetails from './pages/PlaneDetails';
 import Login from './pages/Login';

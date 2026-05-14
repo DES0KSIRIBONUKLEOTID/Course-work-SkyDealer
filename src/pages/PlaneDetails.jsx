@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { 
   Container, Typography, Button, Box, Grid, Paper, Table, TableBody, 
   TableCell, TableContainer, TableRow, Divider, Dialog, DialogTitle, 
-  DialogContent, DialogActions, TextField 
+  DialogContent, DialogActions, TextField, Chip, ToggleButton, ToggleButtonGroup
 } from '@mui/material';
 import { usePlanes } from '../context/PlaneContext'; 
 import { useOrders } from '../context/OrderContext';
@@ -16,16 +16,20 @@ export default function PlaneDetails() {
   const { planes } = usePlanes(); 
   const { addOrder } = useOrders();
 
-  const plane = planes.find(p => p.id === Number(id));
+  const plane = planes.find(p => String(p._id) === String(id));
 
   const [currentImage, setCurrentImage] = useState("");
   const [openOrder, setOpenOrder] = useState(false);
   const [orderData, setOrderData] = useState({ name: '', phone: '', message: '' });
+  
+  // Стейт для перемикача валют
+  const [currency, setCurrency] = useState('USD');
+  const exchangeRate = 0.92; 
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' }); 
     if (plane) {
-      setCurrentImage(plane.images ? plane.images[0] : plane.image);
+      setCurrentImage(plane.images && plane.images.length > 0 ? plane.images[0] : plane.image);
     }
   }, [plane, id]); 
 
@@ -39,16 +43,26 @@ export default function PlaneDetails() {
   }
 
   const similarPlanes = planes
-    .filter(p => p.category === plane.category && p.id !== plane.id) 
+    .filter(p => p.category === plane.category && p._id !== plane._id) 
     .slice(0, 3); 
 
   const handleSendOrder = () => {
     if (!orderData.name || !orderData.phone) return alert("Введіть ім'я та телефон.");
-    addOrder({ ...orderData, planeTitle: plane.title, planeId: plane.id });
+    addOrder({ ...orderData, planeTitle: plane.title, planeId: plane._id });
     alert("Заявку надіслано!");
     setOpenOrder(false);
     setOrderData({ name: '', phone: '', message: '' });
   };
+
+  const handleCurrencyChange = (event, newCurrency) => {
+    if (newCurrency !== null) {
+      setCurrency(newCurrency);
+    }
+  };
+
+  // Розрахунок ціни залежно від обраної валюти
+  const displayPrice = currency === 'USD' ? plane.price : Math.round(plane.price * exchangeRate);
+  const currencySymbol = currency === 'USD' ? '$' : '€';
 
   return (
     <Container maxWidth="lg" sx={{ mt: 5, mb: 10 }}>
@@ -58,7 +72,7 @@ export default function PlaneDetails() {
         
         {/* ГАЛЕРЕЯ ФОТОГРАФІЙ */}
         <Box sx={{ mb: 4 }}>
-          <Box component="img" src={currentImage || "https://via.placeholder.com/1200x500"} alt={plane.title} sx={{ width: '100%', borderRadius: 4, height: { xs: 300, md: 500 }, objectFit: 'cover', boxShadow: 3, mb: 2, transition: 'opacity 0.3s ease-in-out' }} />
+          <Box component="img" src={currentImage || "https://images.unsplash.com/photo-1540962351504-03099e0a754b?auto=format&fit=crop&w=1200&q=80"} alt={plane.title} sx={{ width: '100%', borderRadius: 4, height: { xs: 300, md: 500 }, objectFit: 'cover', boxShadow: 3, mb: 2, transition: 'opacity 0.3s ease-in-out' }} />
           {plane.images && plane.images.length > 1 && (
             <Grid container spacing={2}>
               {plane.images.map((img, index) => (
@@ -73,7 +87,12 @@ export default function PlaneDetails() {
         <Grid container spacing={5} sx={{ mt: 1 }}>
           {/* ЛІВА КОЛОНКА */}
           <Grid item xs={12} md={7}>
-            <Typography variant="h3" component="h1" sx={{ fontWeight: 700, mb: 1, color: '#0b2545' }}>{plane.title}</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+              <Typography variant="h3" component="h1" sx={{ fontWeight: 700, color: '#0b2545' }}>{plane.title}</Typography>
+              {/* ДОДАНО: Статус */}
+              <Chip label={plane.status || 'В наявності'} color={plane.status === 'Продано' ? 'error' : 'success'} sx={{ fontWeight: 'bold' }} />
+            </Box>
+            
             <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 'bold', fontSize: '1rem' }}>{plane.manufacturer} • {plane.year} • {plane.category}</Typography>
             <Divider sx={{ my: 3 }} />
             <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>Огляд</Typography>
@@ -85,12 +104,12 @@ export default function PlaneDetails() {
                 <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #e0e0e0', borderRadius: 3 }}>
                   <Table sx={{ minWidth: 300 }}>
                     <TableBody>
-                      <TableRow><TableCell sx={{ fontWeight: 'bold', bgcolor: '#f8f9fa', width: '40%' }}>Максимальна швидкість</TableCell><TableCell>{plane.specs.speed}</TableCell></TableRow>
-                      <TableRow><TableCell sx={{ fontWeight: 'bold', bgcolor: '#f8f9fa' }}>Дальність польоту</TableCell><TableCell>{plane.specs.range}</TableCell></TableRow>
-                      <TableRow><TableCell sx={{ fontWeight: 'bold', bgcolor: '#f8f9fa' }}>Висота польоту (стеля)</TableCell><TableCell>{plane.specs.altitude}</TableCell></TableRow>
-                      <TableRow><TableCell sx={{ fontWeight: 'bold', bgcolor: '#f8f9fa' }}>Пасажиромісткість</TableCell><TableCell>{plane.specs.passengers}</TableCell></TableRow>
-                      <TableRow><TableCell sx={{ fontWeight: 'bold', bgcolor: '#f8f9fa' }}>Двигуни</TableCell><TableCell>{plane.specs.engines}</TableCell></TableRow>
-                      <TableRow><TableCell sx={{ fontWeight: 'bold', bgcolor: '#f8f9fa' }}>Вантажний відсік</TableCell><TableCell>{plane.specs.cargo}</TableCell></TableRow>
+                      <TableRow><TableCell sx={{ fontWeight: 'bold', bgcolor: '#f8f9fa', width: '40%' }}>Максимальна швидкість</TableCell><TableCell>{plane.specs.speed || 'N/A'}</TableCell></TableRow>
+                      <TableRow><TableCell sx={{ fontWeight: 'bold', bgcolor: '#f8f9fa' }}>Дальність польоту</TableCell><TableCell>{plane.specs.range || 'N/A'}</TableCell></TableRow>
+                      <TableRow><TableCell sx={{ fontWeight: 'bold', bgcolor: '#f8f9fa' }}>Висота польоту (стеля)</TableCell><TableCell>{plane.specs.altitude || 'N/A'}</TableCell></TableRow>
+                      <TableRow><TableCell sx={{ fontWeight: 'bold', bgcolor: '#f8f9fa' }}>Пасажиромісткість</TableCell><TableCell>{plane.specs.passengers || 'N/A'}</TableCell></TableRow>
+                      <TableRow><TableCell sx={{ fontWeight: 'bold', bgcolor: '#f8f9fa' }}>Двигуни</TableCell><TableCell>{plane.specs.engines || 'N/A'}</TableCell></TableRow>
+                      <TableRow><TableCell sx={{ fontWeight: 'bold', bgcolor: '#f8f9fa' }}>Вантажний відсік</TableCell><TableCell>{plane.specs.cargo || 'N/A'}</TableCell></TableRow>
                     </TableBody>
                   </Table>
                 </TableContainer>
@@ -101,8 +120,26 @@ export default function PlaneDetails() {
           {/* ПРАВА КОЛОНКА */}
           <Grid item xs={12} md={5}>
             <Paper elevation={4} sx={{ p: 4, borderRadius: 4, position: 'sticky', top: 20 }}>
-              <Typography variant="h6" color="text.secondary">Вартість борту</Typography>
-              <Typography variant="h3" color="secondary" sx={{ fontWeight: 'bold', mb: 3 }}>${plane.price.toLocaleString()}</Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="h6" color="text.secondary">Вартість борту</Typography>
+                
+                {/* Конвертер валют */}
+                <ToggleButtonGroup
+                  value={currency}
+                  exclusive
+                  onChange={handleCurrencyChange}
+                  size="small"
+                  color="primary"
+                >
+                  <ToggleButton value="USD" sx={{ fontWeight: 'bold' }}>$</ToggleButton>
+                  <ToggleButton value="EUR" sx={{ fontWeight: 'bold' }}>€</ToggleButton>
+                </ToggleButtonGroup>
+              </Box>
+              
+              <Typography variant="h3" color="secondary" sx={{ fontWeight: 'bold', mb: 3 }}>
+                {currencySymbol}{displayPrice.toLocaleString()}
+              </Typography>
+              
               <Button onClick={() => setOpenOrder(true)} variant="contained" size="large" fullWidth sx={{ py: 1.5, borderRadius: 2, fontSize: '1.1rem' }}>Зв'язатися з продавцем</Button>
               <LeaseCalculator price={plane.price} />
             </Paper>
@@ -118,16 +155,15 @@ export default function PlaneDetails() {
               Схожі пропозиції
             </Typography>
             
-            {/* CSS Grid */}
             <Box 
               sx={{ 
                 display: 'grid', 
-                gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, // Завжди 3 колонки на ПК
+                gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
                 gap: 3 
               }}
             >
               {similarPlanes.map(similarPlane => (
-                <Box key={similarPlane.id} sx={{ width: '100%', minWidth: 0, overflow: 'hidden' }}>
+                <Box key={similarPlane._id} sx={{ width: '100%', minWidth: 0, overflow: 'hidden' }}>
                   <PlaneCard plane={similarPlane} />
                 </Box>
               ))}
@@ -137,7 +173,7 @@ export default function PlaneDetails() {
           </Box>
         )}
 
-        <CommentsSection planeId={plane.id} />
+        <CommentsSection planeId={plane._id} />
 
         {/* МОДАЛЬНЕ ВІКНО ЗАЯВКИ */}
         <Dialog open={openOrder} onClose={() => setOpenOrder(false)} fullWidth maxWidth="xs">

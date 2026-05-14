@@ -32,7 +32,6 @@ export default function CommentsSection({ planeId }) {
       const timeLeft = Math.ceil((60000 - (now - parseInt(lastCommentTime))) / 1000);
       return alert(`🛑 Анти-спам: Зачекайте ще ${timeLeft} секунд перед тим, як залишити наступний відгук!`);
     }
-    // ----------------------------------------------------
 
     const commentObj = {
       id: Date.now(),
@@ -103,7 +102,7 @@ export default function CommentsSection({ planeId }) {
               variant="contained" 
               endIcon={<SendIcon />} 
               onClick={handleAddComment}
-              disabled={!user || !newComment.trim() || !newRating} // Не даємо відправити без оцінки
+              disabled={!user || !newComment.trim() || !newRating}
               sx={{ borderRadius: 2 }}
             >
               Надіслати

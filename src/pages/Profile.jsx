@@ -24,7 +24,6 @@ export default function Profile() {
 
   useEffect(() => {
     if (user) {
-      // ВИПРАВЛЕНО: тепер використовуємо savedComments
       const savedComments = JSON.parse(localStorage.getItem('skydealer_comments')) || [];
       const userComments = savedComments.filter(c => c.userEmail === user.email);
       setMyComments(userComments);

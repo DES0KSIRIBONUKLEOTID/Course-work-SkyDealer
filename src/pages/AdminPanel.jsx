@@ -18,8 +18,13 @@ export default function AdminPanel() {
   
   const [tabValue, setTabValue] = useState(0); 
   const [comments, setComments] = useState([]);
-  
   const [viewComment, setViewComment] = useState(null);
+
+  // Стейт для додавання/редагування літаків
+  const [open, setOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentId, setCurrentId] = useState(null);
+  const [planeData, setPlaneData] = useState({ title: '', price: '', images: [], description: '', category: '' });
 
   useEffect(() => {
     const savedComments = localStorage.getItem('skydealer_comments');
@@ -36,7 +41,6 @@ export default function AdminPanel() {
     }
   };
 
-  // --- АНТИ-СПАМ ---
   const handleDeleteAllByUser = (userEmail, userName) => {
     if (window.confirm(`🛑 АНТИ-СПАМ: Ви дійсно хочете видалити ВСІ відгуки від користувача ${userName} (${userEmail})?`)) {
       const updatedComments = comments.filter(c => c.userEmail !== userEmail);
@@ -45,10 +49,26 @@ export default function AdminPanel() {
     }
   };
 
-  const [open, setOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [currentId, setCurrentId] = useState(null);
-  const [planeData, setPlaneData] = useState({ title: '', price: '', image: '', description: '' });
+  // ФУНКЦІЯ: Збереження або Оновлення літака
+  const handleSavePlane = () => {
+    if (!planeData.title || !planeData.price) {
+      alert("Заповніть обов'язкові поля: Назва та Ціна!");
+      return;
+    }
+
+    const planeToSave = {
+      ...planeData,
+      price: Number(planeData.price),
+      images: planeData.images?.length > 0 ? planeData.images : ["https://images.unsplash.com/photo-1540962351504-03099e0a754b?auto=format&fit=crop&w=800&q=80"]
+    };
+
+    if (isEditing) {
+      updatePlane({ ...planeToSave, _id: currentId });
+    } else {
+      addPlane(planeToSave);
+    }
+    setOpen(false); 
+  };
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 10 }}>
@@ -66,23 +86,60 @@ export default function AdminPanel() {
       {tabValue === 0 && (
         <Box>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-            <Button variant="contained" startIcon={<AddIcon />} color="success" onClick={() => { setIsEditing(false); setPlaneData({title:'', price:'', image:'', description:''}); setOpen(true); }}>
+            <Button 
+              variant="contained" 
+              startIcon={<AddIcon />} 
+              color="success" 
+              onClick={() => { 
+                setIsEditing(false); 
+                setPlaneData({title:'', price:'', images:[], description:'', category:''}); 
+                setOpen(true); 
+              }}
+            >
               Додати літак
             </Button>
           </Box>
           <TableContainer component={Paper}>
             <Table>
-              <TableHead><TableRow sx={{ bgcolor: '#f5f5f5' }}><TableCell>ID</TableCell><TableCell>Фото</TableCell><TableCell>Назва</TableCell><TableCell>Ціна</TableCell><TableCell align="right">Дії</TableCell></TableRow></TableHead>
+              <TableHead>
+                <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                  <TableCell>ID</TableCell>
+                  <TableCell>Фото</TableCell>
+                  <TableCell>Назва</TableCell>
+                  <TableCell>Ціна</TableCell>
+                  <TableCell align="right">Дії</TableCell>
+                </TableRow>
+              </TableHead>
               <TableBody>
                 {planes.map((plane) => (
-                  <TableRow key={plane.id}>
-                    <TableCell>{plane.id}</TableCell>
-                    <TableCell><img src={plane.image} alt="plane" style={{ width: 50, borderRadius: 4 }} /></TableCell>
+                  <TableRow key={plane._id || plane.id}>
+                    <TableCell sx={{ fontSize: '0.8rem', color: 'text.secondary' }}>
+                      {plane._id}
+                    </TableCell>
+                    <TableCell>
+                      <img 
+                        src={plane.images && plane.images.length > 0 ? plane.images[0] : "https://images.unsplash.com/photo-1540962351504-03099e0a754b?auto=format&fit=crop&w=50&q=80"} 
+                        alt="plane" 
+                        style={{ width: 60, height: 40, objectFit: 'cover', borderRadius: 4 }} 
+                      />
+                    </TableCell>
                     <TableCell sx={{ fontWeight: 'bold' }}>{plane.title}</TableCell>
-                    <TableCell>${plane.price.toLocaleString()}</TableCell>
+                    <TableCell>${plane.price ? plane.price.toLocaleString() : "0"}</TableCell>
                     <TableCell align="right">
-                      <IconButton color="primary" onClick={() => { setIsEditing(true); setCurrentId(plane.id); setPlaneData(plane); setOpen(true); }}><EditIcon /></IconButton>
-                      <IconButton color="error" onClick={() => deletePlane(plane.id)}><DeleteIcon /></IconButton>
+                      <IconButton 
+                        color="primary" 
+                        onClick={() => { 
+                          setIsEditing(true); 
+                          setCurrentId(plane._id); 
+                          setPlaneData(plane); 
+                          setOpen(true); 
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton color="error" onClick={() => deletePlane(plane._id)}>
+                        <DeleteIcon />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -108,7 +165,7 @@ export default function AdminPanel() {
             </TableHead>
             <TableBody>
               {orders.map((order) => (
-                <TableRow key={order.id}>
+                <TableRow key={order._id || order.id}>
                   <TableCell variant="body2">{order.date}</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>{order.name}</TableCell>
                   <TableCell>{order.planeTitle}</TableCell>
@@ -116,7 +173,7 @@ export default function AdminPanel() {
                   <TableCell>
                     <Select 
                       size="small" value={order.status} 
-                      onChange={(e) => updateOrderStatus(order.id, e.target.value)} sx={{ minWidth: 120 }}
+                      onChange={(e) => updateOrderStatus(order._id || order.id, e.target.value)} sx={{ minWidth: 120 }}
                     >
                       <MenuItem value="Новий">Новий</MenuItem>
                       <MenuItem value="В роботі">В роботі</MenuItem>
@@ -124,7 +181,7 @@ export default function AdminPanel() {
                     </Select>
                   </TableCell>
                   <TableCell align="right">
-                    <IconButton color="error" onClick={() => deleteOrder(order.id)}><DeleteIcon /></IconButton>
+                    <IconButton color="error" onClick={() => deleteOrder(order._id || order.id)}><DeleteIcon /></IconButton>
                   </TableCell>
                 </TableRow>
               ))}
@@ -150,28 +207,25 @@ export default function AdminPanel() {
             <TableBody>
               {comments.length > 0 ? (
                 comments.map((comment) => (
-                  <TableRow key={comment.id}>
+                  <TableRow key={comment._id || comment.id}>
                     <TableCell variant="body2">{comment.date}</TableCell>
                     <TableCell sx={{ fontWeight: 'bold' }}>{comment.userName}</TableCell>
                     <TableCell>{comment.planeId}</TableCell>
                     <TableCell>
                       {comment.rating ? <Rating value={comment.rating} readOnly size="small" /> : '-'}
                     </TableCell>
-                    
-                    {/* Текст з трикрапкою, але клікабельний */}
                     <TableCell 
                       sx={{ maxWidth: 200, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'pointer', color: '#0b2545' }}
                       onClick={() => setViewComment(comment)}
                     >
                       {comment.text}
                     </TableCell>
-                    
                     <TableCell align="center">
                       <Tooltip title="Читати повністю">
                         <IconButton color="info" onClick={() => setViewComment(comment)}><VisibilityIcon /></IconButton>
                       </Tooltip>
                       <Tooltip title="Видалити 1 відгук">
-                        <IconButton color="error" onClick={() => handleDeleteComment(comment.id)}><DeleteIcon /></IconButton>
+                        <IconButton color="error" onClick={() => handleDeleteComment(comment._id || comment.id)}><DeleteIcon /></IconButton>
                       </Tooltip>
                       <Tooltip title="Анти-спам: Видалити ВСІ відгуки цього користувача">
                         <IconButton color="warning" onClick={() => handleDeleteAllByUser(comment.userEmail, comment.userName)}><BlockIcon /></IconButton>
@@ -191,7 +245,7 @@ export default function AdminPanel() {
         </TableContainer>
       )}
 
-      {/* МОДАЛЬНЕ ВІКНО */}
+      {/* МОДАЛЬНЕ ВІКНО ДЛЯ ПЕРЕГЛЯДУ КОМЕНТАРІВ */}
       <Dialog open={!!viewComment} onClose={() => setViewComment(null)} fullWidth maxWidth="sm">
         <DialogTitle sx={{ fontWeight: 'bold', pb: 1 }}>
           Відгук від {viewComment?.userName}
@@ -208,6 +262,60 @@ export default function AdminPanel() {
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setViewComment(null)} variant="contained" sx={{ borderRadius: 2 }}>
             Закрити
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* МОДАЛЬНЕ ВІКНО ДОДАВАННЯ/РЕДАГУВАННЯ ЛІТАКА */}
+      <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm">
+        <DialogTitle sx={{ fontWeight: 'bold' }}>
+          {isEditing ? 'Редагувати літак' : 'Додати новий літак'}
+        </DialogTitle>
+        <DialogContent dividers>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            <TextField 
+              label="Назва літака *" 
+              fullWidth 
+              value={planeData.title || ''} 
+              onChange={(e) => setPlaneData({...planeData, title: e.target.value})} 
+            />
+            <TextField 
+              label="Ціна ($) *" 
+              type="number" 
+              fullWidth 
+              value={planeData.price || ''} 
+              onChange={(e) => setPlaneData({...planeData, price: e.target.value})} 
+            />
+            <TextField 
+              label="Категорія" 
+              fullWidth 
+              value={planeData.category || ''} 
+              onChange={(e) => setPlaneData({...planeData, category: e.target.value})} 
+            />
+            <TextField 
+              label="Посилання на головне фото (URL)" 
+              fullWidth 
+              value={planeData.images && planeData.images.length > 0 ? planeData.images[0] : ''} 
+              onChange={(e) => {
+                const newImages = [...(planeData.images || [])];
+                newImages[0] = e.target.value;
+                setPlaneData({...planeData, images: newImages});
+              }} 
+            />
+            <TextField 
+              label="Опис" 
+              multiline 
+              rows={4} 
+              fullWidth 
+              value={planeData.description || ''} 
+              onChange={(e) => setPlaneData({...planeData, description: e.target.value})} 
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setOpen(false)} color="inherit" sx={{ fontWeight: 'bold' }}>Скасувати</Button>
+          <Button onClick={handleSavePlane} variant="contained" color="success" sx={{ borderRadius: 2 }}>
+            Зберегти
           </Button>
         </DialogActions>
       </Dialog>
