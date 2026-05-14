@@ -12,7 +12,7 @@ const ProductPage = () => {
     // Функція для отримання даних конкретного літака
     const fetchPlane = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/planes/${id}`);
+        const response = await fetch(`https://skydealer-backend.onrender.com${id}`);
         
         if (!response.ok) {
           throw new Error('Не вдалося завантажити дані про літак');
