@@ -1,16 +1,77 @@
-# React + Vite
+# ✈️ SkyDealer — Маркетплейс приватної авіації
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**SkyDealer** — це сучасний веб-додаток (курсовий проєкт) для пошуку, бронювання огляду та купівлі приватних літаків. Проєкт поєднує в собі преміальний дизайн, зручний пошук та повноцінну адміністративну панель для керування контентом.
 
-Currently, two official plugins are available:
+🚀 **Стек технологій (Фронтенд):** React, Vite, Material-UI (MUI), React Router, Context API.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 🛠 ФУНКЦІОНАЛ ПРОЄКТУ
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 1. Ролі користувачів (Actors)
+В системі реалізовано суворе розмежування прав доступу:
+* **Гість (Guest):** Неавторизований відвідувач. Може переглядати каталог, шукати літаки, читати коментарі.
+* **Клієнт (User):** Авторизований користувач. Може залишати/редагувати коментарі, додавати літаки в "Обране", бронювати огляд.
+* **Адміністратор (Admin):** Має повний доступ до управління контентом (CRUD літаків, модерація коментарів, управління користувачами та заявками).
 
-## Expanding the ESLint configuration
+### 2. Автентифікація та Профіль (Auth & Profile)
+Захищений модуль доступу до системи (на базі JWT):
+* **Реєстрація та Вхід:** Валідація даних на стороні клієнта, безпечна авторизація, отримання токена.
+* **Особистий кабінет:** * Зміна аватарки.
+  * Перегляд списку "Обраних" (збережених) літаків.
+  * Історія власних коментарів.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 3. Каталог літаків (Catalog & Search)
+Головна вітрина маркетплейсу:
+* **Відображення списку:** Grid-сітка сучасних карток літаків (Фото, Назва, Ціна, Рік).
+* **Пагінація (Pagination):** Зручне розбиття списку на сторінки.
+* **Сортування:** За ціною (від дешевих / від дорогих) та за роком випуску (нові / старі).
+* **Розширена фільтрація:**
+  * Виробник (Checkbox: Boeing, Cessna, Gulfstream тощо).
+  * Клас літака (Select: Бізнес-джет, Турбогвинтовий, Вантажний).
+  * Ціна (Range Slider).
+* **Живий пошук:** Пошук по назві моделі в реальному часі.
+
+### 4. Сторінка товару (Product Page)
+Детальна інформація про конкретний борт:
+* **Галерея:** Слайдер з фотографіями (екстер'єр, інтер'єр, кабіна пілота).
+* **Інформаційний блок:**
+  * Динамічна ціна (з конвертацією валют USD/EUR).
+  * Бейдж статусу (В наявності / Продано).
+* **Технічні характеристики:** Максимальна швидкість, дальність польоту, висота польоту (стеля), пасажиромісткість, двигуни, об'єм багажника.
+* **Схожі пропозиції:** Блок із картками літаків того ж класу.
+
+### 5. Інтерактив та Комунікація (Interaction)
+* **Коментарі (CRUD):** * Створення, читання, редагування (для автора) та видалення відгуків.
+  * Система рейтингу (1-5 зірок).
+* **Зв'язок з продавцем:** Модальне вікно для швидкої заявки на огляд літака (лідогенерація).
+* **Калькулятор лізингу:** Вбудований інструмент, що розраховує щомісячний платіж на 5 років залежно від початкового внеску.
+
+### 6. Адміністративна панель (Admin Dashboard)
+Захищений Route, доступний лише для ролі `ADMIN`:
+* **Управління літаками:** Повноцінний CRUD (Додавання нових, редагування існуючих, видалення).
+* **Управління заявками:** Таблиця з лідами, зміна статусів заявок ("Новий", "В роботі", "Закрито").
+* **Модерація:** Перегляд бази коментарів, видалення окремих відгуків або повне блокування всього спаму від конкретного користувача (Анти-спам).
+
+### 7. Структура Бази Даних (MongoDB)
+Проєкт взаємодіє з REST API бекендом, який має наступну структуру:
+* `Users` (_id, name, email, password_hash, role, avatar).
+* `Planes` (_id, title, description, price, manufacturer, year, category, specs, images[]).
+* `Comments` (_id, user_id, plane_id, content, rating, date).
+* `Orders` (_id, user_name, phone, plane_id, message, status).
+
+---
+
+## 💻 Як запустити проєкт локально
+
+1. Склонуйте репозиторій:
+```bash
+git clone [https://github.com/DES0KSIRIBONUKLEOTID/Course-work-SkyDealer.git](https://github.com/DES0KSIRIBONUKLEOTID/Course-work-SkyDealer.git)
+
+2. Перейдіть у папку з фронтендом та встановіть залежності:
+npm install
+
+3. Запустіть сервер розробки:
+npm run dev
+
+Відкрийте http://localhost:5173 у вашому браузері.
