@@ -2,10 +2,11 @@ import React, { useRef, useState, useEffect } from 'react';
 import { 
   Container, Typography, Box, Grid, Avatar, Paper, Divider, Button, 
   IconButton, Badge, Tabs, Tab, Table, TableBody, TableCell, TableContainer, 
-  TableHead, TableRow, Chip, Rating, Tooltip
+  TableHead, TableRow, Chip, Rating, Tooltip, Switch, FormControlLabel
 } from '@mui/material';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera'; 
 import DeleteIcon from '@mui/icons-material/Delete';
+import SecurityIcon from '@mui/icons-material/Security';
 import { useAuth } from '../context/AuthContext';
 import { usePlanes } from '../context/PlaneContext';
 import { useOrders } from '../context/OrderContext';
@@ -13,7 +14,7 @@ import PlaneCard from '../components/PlaneCard';
 import { Navigate, Link } from 'react-router-dom';
 
 export default function Profile() {
-  const { user, favorites, logout, updateUserProfile } = useAuth();
+  const { user, favorites, logout, updateUserProfile, updateUserState } = useAuth();
   const { planes } = usePlanes();
   const { orders } = useOrders(); 
   
@@ -21,6 +22,7 @@ export default function Profile() {
   
   const [tabValue, setTabValue] = useState(0);
   const [myComments, setMyComments] = useState([]);
+  const [isUploading, setIsUploading] = useState(false); // Стан для завантаження фото
 
   useEffect(() => {
     if (user) {
@@ -41,20 +43,27 @@ export default function Profile() {
     const file = event.target.files[0]; 
     if (!file) return;
 
-    const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
     if (!validTypes.includes(file.type)) {
-      alert("Будь ласка, завантажте файл формату JPG або PNG.");
+      alert("Будь ласка, завантажте файл формату JPG, PNG або WEBP.");
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Файл занадто великий! Максимальний розмір - 5MB.");
+    if (file.size > 1 * 1024 * 1024) {
+      alert("Файл занадто великий! Максимальний розмір - 1MB для зберігання в БД.");
       return;
     }
 
+    setIsUploading(true);
     const reader = new FileReader();
-    reader.onloadend = () => {
-      updateUserProfile(reader.result);
+    reader.onloadend = async () => {
+      try {
+        await updateUserProfile(reader.result);
+      } catch (error) {
+        alert("Помилка завантаження фото на сервер.");
+      } finally {
+        setIsUploading(false);
+      }
     };
     reader.readAsDataURL(file);
   };
@@ -66,6 +75,33 @@ export default function Profile() {
       localStorage.setItem('skydealer_comments', JSON.stringify(updatedAll));
       
       setMyComments(myComments.filter(c => c.id !== idToDelete));
+    }
+  };
+
+  const handle2FAToggle = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('https://skydealer-backend.onrender.com/api/auth/2fa/toggle', {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        if (updateUserState) {
+           updateUserState({ isTwoFactorEnabled: data.isTwoFactorEnabled });
+        } else {
+           
+           window.location.reload(); 
+        }
+      } else {
+        alert("Помилка зміни статусу 2FA");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Помилка з'єднання з сервером");
     }
   };
 
@@ -86,6 +122,7 @@ export default function Profile() {
 
       <Grid container spacing={4} sx={{ mt: 1 }}>
         
+        {/* ЛІВА КОЛОНКА (ПРОФІЛЬ) */}
         <Grid item xs={12} md={4}>
           <Paper elevation={3} sx={{ p: 4, textAlign: 'center', borderRadius: 3, position: 'sticky', top: 20 }}>
             
@@ -96,19 +133,25 @@ export default function Profile() {
                     badgeContent={
                         <IconButton 
                             onClick={() => fileInputRef.current.click()}
+                            disabled={isUploading}
                             sx={{ 
                                 bgcolor: 'white', 
                                 boxShadow: 2,
                                 '&:hover': { bgcolor: '#f0f0f0' },
                                 border: '2px solid #0b2545' 
                             }} size="small">
-                            <PhotoCameraIcon color="primary" fontSize="small" />
+                            <PhotoCameraIcon color={isUploading ? "disabled" : "primary"} fontSize="small" />
                         </IconButton>
                     }
                 >
                     <Avatar 
                     src={user.avatar} 
-                    sx={{ width: 120, height: 120, border: '4px solid #0b2545' }} 
+                    sx={{ 
+                        width: 120, 
+                        height: 120, 
+                        border: '4px solid #0b2545',
+                        opacity: isUploading ? 0.5 : 1 
+                    }} 
                     />
                 </Badge>
             </Box>
@@ -118,15 +161,33 @@ export default function Profile() {
                 hidden 
                 ref={fileInputRef}
                 onChange={handleFileChange}
-                accept="image/png, image/jpeg, image/jpg"
+                accept="image/png, image/jpeg, image/jpg, image/webp"
             />
             
             <Typography variant="h5" sx={{ fontWeight: 'bold' }}>{user.name}</Typography>
             <Typography color="text.secondary" sx={{ mb: 2 }}>{user.email}</Typography>
             
-            <Typography variant="body2" sx={{ bgcolor: '#e3f2fd', color: '#0b2545', display: 'inline-block', px: 2, py: 0.5, borderRadius: 5, mb: 3 }}>
+            <Typography variant="body2" sx={{ bgcolor: '#e3f2fd', color: '#0b2545', display: 'inline-block', px: 2, py: 0.5, borderRadius: 5, mb: 2 }}>
               Роль: {user.role === 'ADMIN' ? 'Адміністратор' : 'Клієнт'}
             </Typography>
+
+            {/* БЛОК 2FA */}
+            <Paper elevation={0} sx={{ p: 2, bgcolor: '#f8f9fa', borderRadius: 2, mb: 3, border: '1px solid #e0e0e0', textAlign: 'left' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <SecurityIcon sx={{ color: '#0b2545', mr: 1, fontSize: 20 }} />
+                <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>Безпека</Typography>
+              </Box>
+              <FormControlLabel
+                control={
+                  <Switch 
+                    checked={user.isTwoFactorEnabled || false} 
+                    onChange={handle2FAToggle} 
+                    color="primary" 
+                  />
+                }
+                label={<Typography variant="body2">Двофакторна автентифікація (2FA)</Typography>}
+              />
+            </Paper>
 
             <Divider sx={{ mb: 3 }} />
             
@@ -136,6 +197,7 @@ export default function Profile() {
           </Paper>
         </Grid>
 
+        {/* ПРАВА КОЛОНКА (ТАБИ) */}
         <Grid item xs={12} md={8}>
           <Paper elevation={3} sx={{ p: 0, borderRadius: 3, overflow: 'hidden', minHeight: 400 }}>
             
